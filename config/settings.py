@@ -13,6 +13,9 @@ class ReframeSettings:
     serial_2018_environs = ['gcc-7.3.0', 'intel-2018.3' ]
     parallel_2016_environs = [ 'gompi-2016.4.211', 'iompi-2016.4.211' ]
     parallel_2018_environs = [ 'gompi-2018.3.312', 'iompi-2018.3.312' ]
+    cuda_environs = [ 'gcccuda-2018.3.100', 'gcccuda-2018.3.101',
+                      'iccifortcuda-2018.3.100', 'iccifortcuda-2018.3.101']
+
     arch = os.getenv("RSNT_ARCH")
     if arch == "avx512":
         serial_environs = serial_2018_environs
@@ -24,7 +27,6 @@ class ReframeSettings:
         serial_environs = serial_2016_environs
         parallel_environs = parallel_2016_environs
 
-    cuda_environs = []
     login_configuration =   {
                                 'scheduler': 'local',
                                 'environs': serial_environs,
@@ -75,7 +77,7 @@ class ReframeSettings:
                     'cpu_parallel': cpu_parallel_configuration,
                     'gpu': {
                         'scheduler': 'nativeslurm',
-                        'environs': serial_environs + cuda_environs,
+                        'environs': cuda_environs,
                         'resources': {
                                 'gpu': ['--gres=gpu:{num_gpus_per_node}'],
                         }
@@ -90,7 +92,7 @@ class ReframeSettings:
                 'partitions': {
                     'gpu': {
                         'scheduler': 'nativeslurm',
-                        'environs': serial_environs + cuda_environs,
+                        'environs': cuda_environs,
                         'resources': {
                                 'v100': ['--gres=gpu:v100:{num_v100_per_node}'],
                                 'p100': ['--gres=gpu:p100:{num_v100_per_node}'],
@@ -107,7 +109,7 @@ class ReframeSettings:
                 'partitions': {
                     'gpu': {
                         'scheduler': 'nativeslurm',
-                        'environs': serial_environs + cuda_environs,
+                        'environs': cuda_environs,
                         'resources': {
                                 'k20': ['--gres=gpu:k20:{num_v100_per_node}'],
                                 'k80': ['--gres=gpu:k80:{num_v100_per_node}'],
@@ -171,6 +173,34 @@ class ReframeSettings:
                 'iompi-2018.3.312': {
                     'type': 'ProgEnvironment',
                     'modules': ['intel/2018.3', 'openmpi/3.1.2'],
+                    'cc':  'mpicc',
+                    'cxx': 'mpicxx',
+                    'ftn': 'mpifort',
+                },
+                'gcccuda-2018.3.100': {
+                    'type': 'ProgEnvironment',
+                    'modules': ['gcc/7.3.0', 'cuda/10.0'],
+                    'cc':  'mpicc',
+                    'cxx': 'mpicxx',
+                    'ftn': 'mpifort',
+                }
+                'gcccuda-2018.3.101': {
+                    'type': 'ProgEnvironment',
+                    'modules': ['gcc/7.3.0', 'cuda/10.1'],
+                    'cc':  'mpicc',
+                    'cxx': 'mpicxx',
+                    'ftn': 'mpifort',
+                }
+                'iccifortcuda-2018.3.100': {
+                    'type': 'ProgEnvironment',
+                    'modules': ['intel/2018.3', 'cuda/10.0'],
+                    'cc':  'mpicc',
+                    'cxx': 'mpicxx',
+                    'ftn': 'mpifort',
+                }
+                'iccifortcuda-2018.3.101': {
+                    'type': 'ProgEnvironment',
+                    'modules': ['intel/2018.3', 'cuda/10.1'],
                     'cc':  'mpicc',
                     'cxx': 'mpicxx',
                     'ftn': 'mpifort',
