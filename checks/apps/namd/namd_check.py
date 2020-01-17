@@ -72,6 +72,8 @@ class NamdCPUCheck(NamdBaseCheck):
     def __init__(self, flavor):
         super().__init__('cpu', flavor)
         self.valid_systems = ['build-node:serial','build-node:parallel','computecanada:cpu_parallel']
+        if self.current_system.name == "build-node":
+            self.time_limit = (0, 40, 0)
         self.executable_opts = ['+idlepoll', '+ppn 5', 'stmv.namd']
         self.num_cpus_per_task = 6
         self.reference = {
