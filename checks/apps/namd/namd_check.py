@@ -8,8 +8,10 @@ class NamdBaseCheck(rfm.RunOnlyRegressionTest):
     def __init__(self, arch, flavor):
         super().__init__()
         self.descr = 'NAMD check (%s)' % (arch)
-        if flavor == 'multicore':
+        if flavor == 'multicore' or flavor == 'verbs':
             self.valid_prog_environs = ['intel-2016.4', 'intel-2018.3']
+        if flavor == 'verbs':
+            self.valid_prog_environs += ['iccifortcuda-2018.3.100']
 
         self.modules = ['namd-%s' % flavor]
 
