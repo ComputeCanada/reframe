@@ -8,10 +8,10 @@ class NamdBaseCheck(rfm.RunOnlyRegressionTest):
     def __init__(self, arch, flavor):
         super().__init__()
         self.descr = 'NAMD check (%s)' % (arch)
-        if flavor == 'multicore' or flavor == 'verbs':
+        if flavor == 'multicore':
             self.valid_prog_environs = ['intel-2016.4', 'intel-2018.3']
         if flavor == 'verbs':
-            self.valid_prog_environs += ['iccifortcuda-2018.3.100']
+            self.valid_prog_environs = ['intel-2016.4', 'intel-2018.3']
 
         self.modules = ['namd-%s' % flavor]
 
@@ -19,10 +19,6 @@ class NamdBaseCheck(rfm.RunOnlyRegressionTest):
         self.sourcesdir = os.path.join(self.current_system.resourcesdir, 'NAMD')
         self.executable = 'namd2'
         self.use_multithreading = True
-        self.num_tasks_per_core = 2
-
-        self.num_tasks = 6
-        self.num_tasks_per_node = 1
 
         energy = sn.avg(sn.extractall(r'^ENERGY:(\s+\S+){10}\s+(?P<energy>\S+)',
                                       self.stdout, 'energy', float))
@@ -53,15 +49,49 @@ class NamdBaseCheck(rfm.RunOnlyRegressionTest):
 
 
 @rfm.required_version('>=2.16')
-@rfm.parameterized_test(*([f]
-                          for f in ['multicore', 'verbs', 'verbs-smp']))
+@rfm.parameterized_test(*([f,g]
+                          for f in ['multicore', 'verbs', 'verbs-smp']
+                          for g in ['any', 'k20', 'k80', 'p100', 'v100', 'lgpu', 't4']))
 class NamdGPUCheck(NamdBaseCheck):
-    def __init__(self, flavor):
+    def __init__(self, flavor, gputype):
         super().__init__('gpu', flavor)
-        self.valid_systems = ['daint:gpu']
-        self.executable_opts = ['+idlepoll', '+ppn 23', 'stmv.namd']
-        self.num_cpus_per_task = 24
-        self.num_gpus_per_node = 1
+        self.valid_systems = ['cedar:gpu', 'beluga:gpu', 'helios:gpu', 'graham:gpu']
+        self.extra_resources = {'gpu': { 'num_gpus_per_node': 1 } }
+        if gputype == 'k20':
+            self.valid_systems = ['helios']
+            self.extra_resources = {'k20': { 'num_k20_per_node': 1 } }
+        elif gputype == 'k80':
+            self.valid_systems = ['helios']
+            self.extra_resources = {'k80': { 'num_k80_per_node': 1 } }
+        elif gputype == 'p100':
+            self.valid_systems = ['cedar:gpu', 'graham:gpu']
+            self.extra_resources = {'p100': { 'num_p100_per_node': 1 } }
+        elif gputype == 'v100':
+            self.valid_systems = ['cedar:gpu', 'graham:gpu', 'beluga:gpu']
+            self.extra_resources = {'v100': { 'num_v100_per_node': 1 } }
+        elif gputype == 'lgpu':
+            self.valid_systems = ['cedar:gpu']
+            self.extra_resources = {'lgpu': { 'num_lgpu_per_node': 1 } }
+        elif gputype == 't4':
+            self.valid_systems = ['graham:gpu']
+            self.extra_resources = {'t4': { 'num_t4_per_node': 1 } }
+
+        self.extra_resources['mem-per-cpu'] = {'mem_per_cpu' : '512m'}
+
+        if flavor == 'multicore':
+            self.valid_prog_environs += ['iccifortcuda-2016.4.100', 'iccifortcuda-2018.3.100']
+
+        cluster = os.environ['CC_CLUSTER']
+
+        if cluster == "graham":
+            if gputype in ['any','p100']:
+                self.num_cpus_per_task = 16
+            else:
+                self.num_cpus_per_task = 4
+
+        self.num_tasks = 1
+
+        self.executable_opts = ['+idlepoll', '+ppn %s' % str(self.num_cpus_per_task - 1), 'stmv.namd']
         self.reference = {
                 'daint:gpu': {'days_ns': (0.11, None, 0.05, 'days/ns')}
         }
@@ -73,7 +103,8 @@ class NamdGPUCheck(NamdBaseCheck):
 class NamdCPUCheck(NamdBaseCheck):
     def __init__(self, flavor):
         super().__init__('cpu', flavor)
-        self.valid_systems = ['build-node:serial','build-node:parallel','computecanada:cpu_parallel']
+        self.valid_systems = ['build-node:serial','build-node:parallel',
+                              'beluga:cpu_parallel', 'cedar:cpu_parallel', 'graham:cpu_parallel']
         if self.current_system.name == "build-node":
             self.time_limit = (0, 40, 0)
         self.executable_opts = ['+idlepoll', '+ppn 5', 'stmv.namd']

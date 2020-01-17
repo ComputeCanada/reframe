@@ -13,16 +13,18 @@ class ReframeSettings:
     serial_2018_environs = ['gcc-7.3.0', 'intel-2018.3' ]
     parallel_2016_environs = [ 'gompi-2016.4.211', 'iompi-2016.4.211' ]
     parallel_2018_environs = [ 'gompi-2018.3.312', 'iompi-2018.3.312' ]
-    cuda_environs = [ 'gcccuda-2018.3.100', 'gcccuda-2018.3.101',
-                      'iccifortcuda-2018.3.100', 'iccifortcuda-2018.3.101']
+    cuda_2016_environs = [ 'iccifortcuda-2016.4.100' ]
+    cuda_2018_environs = [ 'iccifortcuda-2018.3.100', 'iccifortcuda-2018.3.101' ]
 
     arch = os.getenv("RSNT_ARCH")
     if arch == "avx512":
         serial_environs = serial_2018_environs
         parallel_environs = parallel_2018_environs
+        cuda_environs = cuda_2018_environs
     elif arch == "avx2":
         serial_environs = serial_2016_environs + serial_2018_environs
         parallel_environs = parallel_2016_environs + parallel_2018_environs
+        cuda_environs = cuda_2016_environs + cuda_2018_environs
     else:
         serial_environs = serial_2016_environs
         parallel_environs = parallel_2016_environs
@@ -44,9 +46,8 @@ class ReframeSettings:
                                 'scheduler': 'nativeslurm',
                                 'environs': parallel_environs,
                             }
-
-    site_configuration = {
-        'systems': {
+    site_configuration = {}
+    site_configuration['systems'] = {
             'build-node': {
                 'descr': 'Build node',
                 'hostnames': ['build-node'],
@@ -65,61 +66,74 @@ class ReframeSettings:
                     }
                 }
             },
-            'computecanada': {
-                'descr': 'Compute Canada cluster',
-                'hostnames': ['cedar', 'cdr', 'gra-login', 'gra', 'beluga', 'blg', 'helios', 'hel'],
-                'modules_system': 'lmod',
-                'resourcesdir': '/cvmfs/soft.computecanada.ca/custom/reframe/ressources',
+            'beluga': {
+                'descr': 'Beluga Compute Canada cluster',
+                'hostnames': ['beluga', 'blg'],
                 'partitions': {
-                    'login': login_configuration,
-                    'cpu': cpu_configuration,
-                    'cpu_serial': cpu_serial_configuration,
-                    'cpu_parallel': cpu_parallel_configuration,
+                    'gpu': {
+                        'scheduler': 'nativeslurm',
+                        'environs': cuda_environs,
+                        'resources': { }
+                    }
+                },
+            },
+            'cedar': {
+                'descr': 'Cedar Compute Canada cluster',
+                'hostnames': ['cedar', 'cdr'],
+                'partitions': {
                     'gpu': {
                         'scheduler': 'nativeslurm',
                         'environs': cuda_environs,
                         'resources': {
-                                'gpu': ['--gres=gpu:{num_gpus_per_node}'],
+                                'lgpu': ['--gres=gpu:lgpu:{num_lgpu_per_node}'],
                         }
                     }
-                }
+                },
             },
-            'graham_gpu': {
+            'graham': {
                 'descr': 'Graham Compute Canada cluster',
                 'hostnames': ['gra-login', 'gra'],
-                'modules_system': 'lmod',
-                'resourcesdir': '/cvmfs/soft.computecanada.ca/custom/reframe/ressources',
                 'partitions': {
                     'gpu': {
                         'scheduler': 'nativeslurm',
                         'environs': cuda_environs,
                         'resources': {
                                 'v100': ['--gres=gpu:v100:{num_v100_per_node}'],
-                                'p100': ['--gres=gpu:p100:{num_v100_per_node}'],
-                                't4': ['--gres=gpu:t4:{num_v100_per_node}'],
+                                'p100': ['--gres=gpu:p100:{num_p100_per_node}'],
+                                't4': ['--gres=gpu:t4:{num_t4_per_node}'],
                         }
                     }
                 },
             },
-            'helios_gpu': {
+            'helios': {
                 'descr': 'Helios Compute Canada clusters',
                 'hostnames': ['helios', 'hel'],
-                'modules_system': 'lmod',
-                'resourcesdir': '/cvmfs/soft.computecanada.ca/custom/reframe/ressources',
                 'partitions': {
                     'gpu': {
                         'scheduler': 'nativeslurm',
                         'environs': cuda_environs,
                         'resources': {
-                                'k20': ['--gres=gpu:k20:{num_v100_per_node}'],
-                                'k80': ['--gres=gpu:k80:{num_v100_per_node}'],
+                                'k20': ['--gres=gpu:k20:{num_k20_per_node}'],
+                                'k80': ['--gres=gpu:k80:{num_k80_per_node}'],
                         }
                     }
                 }
-            }
-        },
+            },
+        }
 
-        'environments': {
+    # common configuration
+    for s in ['graham', 'cedar', 'helios', 'beluga']:
+        site_configuration['systems'][s]['modules_system'] = 'lmod'
+        site_configuration['systems'][s]['resourcesdir'] = '/cvmfs/soft.computecanada.ca/custom/reframe/ressources'
+        site_configuration['systems'][s]['partitions']['login'] = login_configuration
+        site_configuration['systems'][s]['partitions']['cpu'] = cpu_configuration
+        site_configuration['systems'][s]['partitions']['cpu_serial'] = cpu_serial_configuration
+        site_configuration['systems'][s]['partitions']['cpu_parallel'] = cpu_parallel_configuration
+        site_configuration['systems'][s]['partitions']['gpu']['resources']['gpu'] = ['--gres=gpu:{num_gpus_per_node}']
+        site_configuration['systems'][s]['partitions']['gpu']['resources']['mem-per-cpu'] = ['--mem-per-cpu={mem_per_cpu}']
+
+
+    site_configuration['environments'] = {
             '*': {
                 'gcc-5.4.0': {
                     'type': 'ProgEnvironment',
@@ -177,37 +191,29 @@ class ReframeSettings:
                     'cxx': 'mpicxx',
                     'ftn': 'mpifort',
                 },
-                'gcccuda-2018.3.100': {
+                'iccifortcuda-2016.4.100': {
                     'type': 'ProgEnvironment',
-                    'modules': ['gcc/7.3.0', 'cuda/10.0'],
+                    'modules': ['intel/2016.4', 'cuda/10.0'],
                     'cc':  'mpicc',
                     'cxx': 'mpicxx',
                     'ftn': 'mpifort',
-                }
-                'gcccuda-2018.3.101': {
-                    'type': 'ProgEnvironment',
-                    'modules': ['gcc/7.3.0', 'cuda/10.1'],
-                    'cc':  'mpicc',
-                    'cxx': 'mpicxx',
-                    'ftn': 'mpifort',
-                }
+                },
                 'iccifortcuda-2018.3.100': {
                     'type': 'ProgEnvironment',
                     'modules': ['intel/2018.3', 'cuda/10.0'],
                     'cc':  'mpicc',
                     'cxx': 'mpicxx',
                     'ftn': 'mpifort',
-                }
+                },
                 'iccifortcuda-2018.3.101': {
                     'type': 'ProgEnvironment',
                     'modules': ['intel/2018.3', 'cuda/10.1'],
                     'cc':  'mpicc',
                     'cxx': 'mpicxx',
                     'ftn': 'mpifort',
-                }
+                },
             }
         }
-    }
 
     logging_config = {
         'level': 'DEBUG',
@@ -272,6 +278,8 @@ class ReframeSettings:
             },
         ]
     }
+
+    
 
 
 settings = ReframeSettings()

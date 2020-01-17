@@ -8,7 +8,8 @@ class OSUBenchmarkTestBase(rfm.RunOnlyRegressionTest):
     '''Base class of OSU benchmarks runtime tests'''
 
     def __init__(self):
-        self.valid_systems = ['build-node:parallel','computecanada:cpu_parallel']
+        self.valid_systems = ['build-node:parallel',
+                              'beluga:cpu_parallel', 'cedar:cpu_parallel', 'graham:cpu_parallel']
         self.valid_prog_environs = ['*']
         self.sourcesdir = None
         self.num_tasks = 2
@@ -88,7 +89,8 @@ class OSUAllreduceTest(OSUBenchmarkTestBase):
 class OSUBuildTest(rfm.CompileOnlyRegressionTest):
     def __init__(self):
         self.descr = 'OSU benchmarks build test'
-        self.valid_systems = ['build-node:parallel','computecanada:cpu_parallel']
+        self.valid_systems = ['build-node:parallel',
+                              'beluga:cpu_parallel', 'cedar:cpu_parallel', 'graham:cpu_parallel']
         self.valid_prog_environs = ['*']
         self.sourcesdir = None
         self.prebuild_cmd = [
