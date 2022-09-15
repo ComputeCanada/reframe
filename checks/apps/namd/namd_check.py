@@ -8,6 +8,7 @@ class NamdBaseCheck(rfm.RunOnlyRegressionTest):
     def __init__(self, arch, flavor):
         super().__init__()
         self.descr = 'NAMD check (%s)' % (arch)
+        self.valid_prog_environs = []
         if flavor == 'multicore':
             self.valid_prog_environs = ['intel-2016.4', 'intel-2018.3']
         if flavor == 'verbs':
@@ -48,13 +49,16 @@ class NamdBaseCheck(rfm.RunOnlyRegressionTest):
         }
 
 
-@rfm.required_version('>=2.16')
-@rfm.parameterized_test(*([f,g]
-                          for f in ['multicore', 'verbs', 'verbs-smp']
-                          for g in ['any', 'k20', 'k80', 'p100', 'v100', 'lgpu', 't4']))
+@rfm.simple_test
 class NamdGPUCheck(NamdBaseCheck):
-    def __init__(self, flavor, gputype):
-        super().__init__('gpu', flavor)
+    require_version = '>=2.16.0'
+    flavorgputype = parameter(
+        [f,g]
+        for f in ['multicore', 'verbs', 'verbs-smp']
+        for g in ['any', 'k20', 'k80', 'p100', 'v100', 'lgpu', 't4'])
+    def __init__(self):
+        flavor, gputype = self.flavorgputype
+        super().__init__(gputype, flavor)
         self.valid_systems = ['cedar:gpu', 'beluga:gpu', 'helios:gpu', 'graham:gpu']
         self.extra_resources = {'gpu': { 'num_gpus_per_node': 1 } }
         if gputype == 'k20':
@@ -88,25 +92,25 @@ class NamdGPUCheck(NamdBaseCheck):
                 self.num_cpus_per_task = 16
             else:
                 self.num_cpus_per_task = 4
+            self.executable_opts = ['+idlepoll', '+ppn %s' % str(self.num_cpus_per_task - 1), 'stmv.namd']
 
         self.num_tasks = 1
 
-        self.executable_opts = ['+idlepoll', '+ppn %s' % str(self.num_cpus_per_task - 1), 'stmv.namd']
         self.reference = {
                 'daint:gpu': {'days_ns': (0.11, None, 0.05, 'days/ns')}
         }
 
 
-@rfm.required_version('>=2.16')
-@rfm.parameterized_test(*([f]
-                          for f in ['multicore', 'verbs', 'mpi']))
+@rfm.simple_test
 class NamdCPUCheck(NamdBaseCheck):
-    def __init__(self, flavor):
-        super().__init__('cpu', flavor)
+    require_version = '>=2.16.0'
+    flavor = parameter(('multicore', 'verbs', 'mpi'))
+    def __init__(self):
+        super().__init__('cpu', self.flavor)
         self.valid_systems = ['build-node:serial','build-node:parallel',
                               'beluga:cpu_parallel', 'cedar:cpu_parallel', 'graham:cpu_parallel']
         if self.current_system.name == "build-node":
-            self.time_limit = (0, 40, 0)
+            self.time_limit = "40m"
         self.executable_opts = ['+idlepoll', '+ppn 5', 'stmv.namd']
         self.num_cpus_per_task = 6
         self.reference = {
