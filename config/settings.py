@@ -5,24 +5,28 @@
 import os
 
 serial_2016_environs = ['gcc-5.4.0', 'intel-2016.4']
-serial_2018_environs = ['gcc-7.3.0', 'intel-2018.3' ]
+serial_2018_environs = ['gcc-7.3.0', 'intel-2018.3']
+serial_2020_environs = ['gcc-9.3.0', 'intel-2020.1']
 parallel_2016_environs = [ 'gompi-2016.4.211', 'iompi-2016.4.211' ]
 parallel_2018_environs = [ 'gompi-2018.3.312', 'iompi-2018.3.312' ]
+parallel_2020_environs = [ 'gompi-2020a', 'iompi-2020a' ]
 cuda_2016_environs = [ 'iccifortcuda-2016.4.100' ]
 cuda_2018_environs = [ 'iccifortcuda-2018.3.100', 'iccifortcuda-2018.3.101' ]
+cuda_2020_environs = [ 'iccifortcuda-2020.1.114' ]
 
 arch = os.getenv("RSNT_ARCH")
 if arch == "avx512":
-    serial_environs = serial_2018_environs
-    parallel_environs = parallel_2018_environs
-    cuda_environs = cuda_2018_environs
+    serial_environs = serial_2018_environs + serial_2020_environs
+    parallel_environs = parallel_2018_environs + parallel_2020_environs
+    cuda_environs = cuda_2018_environs + cuda_2020_environs
 elif arch == "avx2":
-    serial_environs = serial_2016_environs + serial_2018_environs
-    parallel_environs = parallel_2016_environs + parallel_2018_environs
-    cuda_environs = cuda_2016_environs + cuda_2018_environs
+    serial_environs = serial_2016_environs + serial_2018_environs + serial_2020_environs
+    parallel_environs = parallel_2016_environs + parallel_2018_environs + parallel_2020_environs
+    cuda_environs = cuda_2016_environs + cuda_2018_environs + cuda_2020_environs
 else:
     serial_environs = serial_2016_environs
     parallel_environs = parallel_2016_environs
+    cuda_environs = cuda_2016_environs
 
 login_configuration = {
     'name': 'login',
@@ -215,6 +219,26 @@ site_configuration = {
             'ftn': 'gfortran'
         },
         {
+            'name': 'gcc-9.3.0',
+            'modules': [
+                'StdEnv/2020',
+                'gcc/9.3.0'
+            ],
+            'cc': 'gcc',
+            'cxx': 'g++',
+            'ftn': 'gfortran'
+        },
+        {
+            'name': 'intel-2020.1',
+            'modules': [
+                'StdEnv/2020',
+                'intel/2020.1'
+            ],
+            'cc': 'gcc',
+            'cxx': 'g++',
+            'ftn': 'gfortran'
+        },
+        {
             'name': 'gompi-2016.4.211',
             'modules': [
                 'nixpkgs/16.09',
@@ -259,6 +283,28 @@ site_configuration = {
             'ftn': 'mpifort'
         },
         {
+            'name': 'gompi-2020a',
+            'modules': [
+                'StdEnv/2020',
+                'gcc/9.3.0',
+                'openmpi/4.0.3'
+            ],
+            'cc': 'mpicc',
+            'cxx': 'mpicxx',
+            'ftn': 'mpifort'
+        },
+        {
+            'name': 'iompi-2020a',
+            'modules': [
+                'StdEnv/2020',
+                'intel/2020.1',
+                'openmpi/4.0.3'
+            ],
+            'cc': 'mpicc',
+            'cxx': 'mpicxx',
+            'ftn': 'mpifort'
+        },
+        {
             'name': 'iccifortcuda-2016.4.100',
             'modules': [
                 'nixpkgs/16.09',
@@ -286,6 +332,17 @@ site_configuration = {
                 'nixpkgs/16.09',
                 'intel/2018.3',
                 'cuda/10.1'
+            ],
+            'cc': 'mpicc',
+            'cxx': 'mpicxx',
+            'ftn': 'mpifort'
+        },
+        {
+            'name': 'iccifortcuda-2020.1.114',
+            'modules': [
+                'StdEnv/2020',
+                'intel/2020.1',
+                'cuda/11.4'
             ],
             'cc': 'mpicc',
             'cxx': 'mpicxx',
