@@ -9,7 +9,8 @@ class OSUBenchmarkTestBase(rfm.RunOnlyRegressionTest):
 
     def __init__(self):
         self.valid_systems = ['build-node:parallel',
-                              'beluga:cpu_parallel', 'cedar:cpu_parallel', 'graham:cpu_parallel']
+                              'beluga:cpu_parallel', 'cedar:cpu_parallel', 'graham:cpu_parallel',
+                              'narval:cpu_parallel']
         self.valid_prog_environs = ['*']
         self.sourcesdir = None
         self.num_tasks = 2
@@ -92,7 +93,8 @@ class OSUBuildTest(rfm.CompileOnlyRegressionTest):
     def __init__(self):
         self.descr = 'OSU benchmarks build test'
         self.valid_systems = ['build-node:parallel',
-                              'beluga:cpu_parallel', 'cedar:cpu_parallel', 'graham:cpu_parallel']
+                              'beluga:cpu_parallel', 'cedar:cpu_parallel', 'graham:cpu_parallel',
+                              'narval:cpu_parallel']
         self.valid_prog_environs = ['*']
         self.sourcesdir = None
         self.prebuild_cmds = [

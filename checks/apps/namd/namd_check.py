@@ -55,11 +55,11 @@ class NamdGPUCheck(NamdBaseCheck):
     flavorgputype = parameter(
         [f,g]
         for f in ['multicore', 'verbs', 'verbs-smp']
-        for g in ['any', 'k20', 'k80', 'p100', 'v100', 'lgpu', 't4'])
+        for g in ['any', 'k20', 'k80', 'p100', 'v100', 'a100', 'lgpu', 't4'])
     def __init__(self):
         flavor, gputype = self.flavorgputype
         super().__init__(gputype, flavor)
-        self.valid_systems = ['cedar:gpu', 'beluga:gpu', 'helios:gpu', 'graham:gpu']
+        self.valid_systems = ['cedar:gpu', 'beluga:gpu', 'helios:gpu', 'graham:gpu', 'narval:gpu']
         self.extra_resources = {'gpu': { 'num_gpus_per_node': 1 } }
         if gputype == 'k20':
             self.valid_systems = ['helios']
@@ -73,6 +73,9 @@ class NamdGPUCheck(NamdBaseCheck):
         elif gputype == 'v100':
             self.valid_systems = ['cedar:gpu', 'graham:gpu', 'beluga:gpu']
             self.extra_resources = {'v100': { 'num_v100_per_node': 1 } }
+        elif gputype == 'a100':
+            self.valid_systems = ['narval:gpu']
+            self.extra_resources = {'a100': { 'num_a100_per_node': 1 } }
         elif gputype == 'lgpu':
             self.valid_systems = ['cedar:gpu']
             self.extra_resources = {'lgpu': { 'num_lgpu_per_node': 1 } }
@@ -108,7 +111,8 @@ class NamdCPUCheck(NamdBaseCheck):
     def __init__(self):
         super().__init__('cpu', self.flavor)
         self.valid_systems = ['build-node:serial','build-node:parallel',
-                              'beluga:cpu_parallel', 'cedar:cpu_parallel', 'graham:cpu_parallel']
+                              'beluga:cpu_parallel', 'cedar:cpu_parallel', 'graham:cpu_parallel',
+                              'narval:cpu_parallel']
         if self.current_system.name == "build-node":
             self.time_limit = "40m"
         self.executable_opts = ['+idlepoll', '+ppn 5', 'stmv.namd']
