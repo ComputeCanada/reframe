@@ -30,8 +30,8 @@ else:
 
 cpu_vendor = os.getenv("RSNT_CPU_VENDOR_ID")
 if cpu_vendor == "amd":
-    serial_environs = serial_2016_environs[0] + serial_2018_environs[0] + serial_2020_environs
-    parallel_environs = parallel_2016_environs[0] + parallel_2018_environs[0] + parallel_2020_environs
+    serial_environs = [serial_2016_environs[0], serial_2018_environs[0]] + serial_2020_environs
+    parallel_environs = [parallel_2016_environs[0], parallel_2018_environs[0]] + parallel_2020_environs
     cuda_environs = cuda_2020_environs
 
 login_configuration = {
