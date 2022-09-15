@@ -30,7 +30,7 @@ class OSULatencyTest(OSUBenchmarkTestBase):
             '*': {'latency': (0, None, None, 'us')}
         }
 
-    @rfm.require_deps
+    @require_deps
     def set_executable(self, OSUBuildTest):
         self.executable = os.path.join(
             OSUBuildTest().stagedir,
@@ -53,7 +53,7 @@ class OSUBandwidthTest(OSUBenchmarkTestBase):
             '*': {'bandwidth': (0, None, None, 'MB/s')}
         }
 
-    @rfm.require_deps
+    @require_deps
     def set_executable(self, OSUBuildTest):
         self.executable = os.path.join(
             OSUBuildTest().stagedir,
@@ -62,9 +62,11 @@ class OSUBandwidthTest(OSUBenchmarkTestBase):
         self.executable_opts = ['-x', '100', '-i', '1000']
 
 
-@rfm.parameterized_test(*([1 << i] for i in range(1, 5)))
+@rfm.simple_test
 class OSUAllreduceTest(OSUBenchmarkTestBase):
-    def __init__(self, num_tasks):
+    tasks = parameter(1 << i for i in range(1, 5))
+
+    def __init__(self):
         super().__init__()
         self.descr = 'OSU Allreduce test'
         self.perf_patterns = {
@@ -74,9 +76,9 @@ class OSUAllreduceTest(OSUBenchmarkTestBase):
         self.reference = {
             '*': {'latency': (0, None, None, 'us')}
         }
-        self.num_tasks = num_tasks
+        self.num_tasks = self.tasks
 
-    @rfm.require_deps
+    @require_deps
     def set_executable(self, OSUBuildTest):
         self.executable = os.path.join(
             OSUBuildTest().stagedir,
