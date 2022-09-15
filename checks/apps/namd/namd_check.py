@@ -10,9 +10,9 @@ class NamdBaseCheck(rfm.RunOnlyRegressionTest):
         self.descr = 'NAMD check (%s)' % (arch)
         self.valid_prog_environs = []
         if flavor == 'multicore':
-            self.valid_prog_environs = ['intel-2016.4', 'intel-2018.3']
+            self.valid_prog_environs = ['intel-2016.4', 'intel-2018.3', 'intel-2020.1']
         if flavor == 'verbs':
-            self.valid_prog_environs = ['intel-2016.4', 'intel-2018.3']
+            self.valid_prog_environs = ['intel-2016.4', 'intel-2018.3', 'intel-2020.1']
 
         self.modules = ['namd-%s' % flavor]
 
@@ -86,7 +86,7 @@ class NamdGPUCheck(NamdBaseCheck):
         self.extra_resources['mem-per-cpu'] = {'mem_per_cpu' : '512m'}
 
         if flavor == 'multicore':
-            self.valid_prog_environs += ['iccifortcuda-2016.4.100', 'iccifortcuda-2018.3.100']
+            self.valid_prog_environs += ['iccifortcuda-2016.4.100', 'iccifortcuda-2018.3.100', 'iccifortcuda-2020.1.114']
 
         cluster = os.environ['CC_CLUSTER']
 
