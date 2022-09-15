@@ -87,6 +87,9 @@ site_configuration = {
             'hostnames': [
                 'beluga',
                 'blg'
+                'bc'
+                'bl'
+                'bg'
             ],
             'partitions': [
                 {
@@ -175,7 +178,26 @@ site_configuration = {
                     'launcher': 'srun'
                 },
             ],
-        }
+        },
+        {
+            'name': 'narval',
+            'descr': 'Narval Compute Canada cluster',
+            'hostnames': [
+                'narval',
+                'nc'
+                'nl'
+                'ng'
+            ],
+            'partitions': [
+                {
+                    'name': 'gpu',
+                    'scheduler': 'slurm',
+                    'environs': cuda_environs,
+                    'resources': [],
+                    'launcher': 'srun'
+                },
+            ],
+        },
     ],
     'environments': [
         {
@@ -403,7 +425,7 @@ site_configuration = {
 
 # common configuration
 for s in site_configuration['systems']:
-    if s['name'] in ['graham', 'cedar', 'helios', 'beluga']:
+    if s['name'] in ['graham', 'cedar', 'helios', 'beluga', 'narval']:
         s['modules_system'] = 'lmod'
         s['resourcesdir'] = '/cvmfs/soft.computecanada.ca/custom/reframe/ressources'
         s['partitions'].extend([login_configuration, cpu_configuration,
