@@ -86,10 +86,10 @@ site_configuration = {
             'descr': 'Beluga Compute Canada cluster',
             'hostnames': [
                 'beluga',
-                'blg'
-                'bc'
-                'bl'
-                'bg'
+                'blg',
+                'bc',
+                'bl',
+                'bg',
             ],
             'partitions': [
                 {
@@ -184,9 +184,9 @@ site_configuration = {
             'descr': 'Narval Compute Canada cluster',
             'hostnames': [
                 'narval',
-                'nc'
-                'nl'
-                'ng'
+                'nc',
+                'nl',
+                'ng',
             ],
             'partitions': [
                 {
