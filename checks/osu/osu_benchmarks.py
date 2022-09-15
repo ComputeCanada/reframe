@@ -93,7 +93,7 @@ class OSUBuildTest(rfm.CompileOnlyRegressionTest):
                               'beluga:cpu_parallel', 'cedar:cpu_parallel', 'graham:cpu_parallel']
         self.valid_prog_environs = ['*']
         self.sourcesdir = None
-        self.prebuild_cmd = [
+        self.prebuild_cmds = [
             'cp /cvmfs/soft.computecanada.ca/easybuild/sources/o/OSU-Micro-Benchmarks/osu-micro-benchmarks-5.6.1.tar.gz .',
             'tar xzf osu-micro-benchmarks-5.6.1.tar.gz',
             'cd osu-micro-benchmarks-5.6.1'
