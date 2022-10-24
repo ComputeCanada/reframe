@@ -9,7 +9,7 @@ serial_2018_environs = ['gcc-7.3.0', 'intel-2018.3']
 serial_2020_environs = ['gcc-9.3.0', 'intel-2020.1']
 parallel_2016_environs = [ 'gompi-2016.4.211', 'iompi-2016.4.211' ]
 parallel_2018_environs = [ 'gompi-2018.3.312', 'iompi-2018.3.312' ]
-parallel_2020_environs = [ 'gompi-2020a', 'iompi-2020a' ]
+parallel_2020_environs = [ 'gompi-2020a', 'iompi-2020a', 'iimpi-2020a' ]
 cuda_2016_environs = [ 'iccifortcuda-2016.4.100' ]
 cuda_2018_environs = [ 'iccifortcuda-2018.3.100', 'iccifortcuda-2018.3.101' ]
 cuda_2020_environs = [ 'iccifortcuda-2020.1.114' ]
@@ -327,6 +327,17 @@ site_configuration = {
                 'StdEnv/2020',
                 'intel/2020.1',
                 'openmpi/4.0.3'
+            ],
+            'cc': 'mpicc',
+            'cxx': 'mpicxx',
+            'ftn': 'mpifort'
+        },
+        {
+            'name': 'iimpi-2020a',
+            'modules': [
+                'StdEnv/2020',
+                'intel/2020.1',
+                'intelmpi/2019.7.217'
             ],
             'cc': 'mpicc',
             'cxx': 'mpicxx',
