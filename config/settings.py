@@ -199,7 +199,12 @@ site_configuration = {
                     'name': 'gpu',
                     'scheduler': 'slurm',
                     'environs': cuda_environs,
-                    'resources': [],
+                    'resources': [
+                        {
+                            'name': 'a100',
+                            'options': ['--gres=gpu:a100:{num_a100_per_node}']
+                        },
+                    ],
                     'launcher': 'srun'
                 },
             ],
